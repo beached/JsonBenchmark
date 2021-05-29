@@ -1,0 +1,6 @@
+#
+# daw_json_link
+#
+git checkout develop
+cmake -DCMAKE_BUILD_TYPE=release -G "Unix Makefiles" -DCMAKE_INSTALL_INCLUDEDIR=include .
+make
