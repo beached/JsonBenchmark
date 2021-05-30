@@ -2,14 +2,13 @@
 
 #define HEADER_ONLY 1
 
-#include "daw_json_link_test_citm_json.h"
+#include "daw_json_link_test_citm.h"
 #include "daw_json_link_test_common.h"
-#include "daw_json_link_test_geojson_json.h"
-#include "daw_json_link_test_twitter_json.h"
+#include "daw_json_link_test_geojson.h"
+#include "daw_json_link_test_twitter.h"
 
 #include <daw/daw_fnv1a_hash.h>
 #include <daw/daw_visit.h>
-#include <daw/json/daw_json_link.h>
 
 #include <cstddef>
 #include <cstdint>
@@ -20,165 +19,169 @@
 #include <variant>
 #include <vector>
 
-using map2m01_t =
-  get_value<std::map<std::string, std::map<std::string, std::string>>>;
+inline namespace {
+	using map2m01_t =
+	  get_value<std::map<std::string, std::map<std::string, std::string>>>;
 
-using test_functions_t = std::variant<
-  get_array_value<L18>, get_array_value<bool>, get_array_value<double>,
-  get_array_value<int>, get_array_value<long>,
-  get_array_value<std::optional<int>>, get_array_value<std::string>,
-  get_value<std::map<std::string, bool>>, get_value<std::map<std::string, int>>,
-  get_value<std::map<std::string, std::optional<int>>>,
-  get_value<std::map<std::string, std::string>>,
-  get_value<daw::citm::citm_object_t>, get_value<daw::geojson::Polygon>,
-  get_value<daw::twitter::twitter_object_t>, get_value<object2>,
-  get_value<object3>, map2m01_t, test_empty, test_vector_double,
-  test_vector_string>;
+	using test_functions_t = std::variant<
+	  /*get_value<std::vector<L18>>,*/ get_value<std::vector<bool>>,
+	  get_value<std::vector<double>>, get_value<std::vector<int>>,
+	  get_value<std::vector<long>>, get_value<std::vector<std::optional<int>>>,
+	  get_value<std::vector<std::string>>, get_value<std::map<std::string, bool>>,
+	  get_value<std::map<std::string, int>>,
+	  get_value<std::map<std::string, std::optional<int>>>,
+	  get_value<std::map<std::string, std::string>>,
+	  get_value<daw::citm::citm_object_t>, get_value2<daw::geojson::Polygon>,
+	  get_twitter_value, get_value<object2>, get_value<object3>, map2m01_t,
+	  test_empty, test_vector_double, test_vector_string>;
 
-test_functions_t choose_test( char const *test_name, std::size_t sz ) {
-	switch( daw::fnv1a_hash( test_name ) ) {
-	case daw::fnv1a_hash( "vector-double" ):
-		return test_functions_t{ test_vector_double{ sz } };
-	case daw::fnv1a_hash( "vector-string" ):
-		return test_functions_t{ test_vector_string{ sz } };
-	case daw::fnv1a_hash( "performance/canada.json" ):
-		return test_functions_t{
-		  get_value<daw::geojson::Polygon>{ "features[0].geometry" } };
-	case daw::fnv1a_hash( "performance/citm_catalog.json" ):
-		return test_functions_t{ get_value<daw::citm::citm_object_t>{} };
-	case daw::fnv1a_hash( "performance/twitter.json" ):
-		return test_functions_t{ get_value<daw::twitter::twitter_object_t>{} };
-	case daw::fnv1a_hash( "jsonchecker_fail/fail02.json" ):
-		return test_functions_t{ get_array_value<std::string>{} };
-	case daw::fnv1a_hash( "jsonchecker_fail/fail03.json" ):
-		return test_functions_t{ get_value<std::map<std::string, std::string>>{} };
-	case daw::fnv1a_hash( "jsonchecker_fail/fail04.json" ):
-		return test_functions_t{ get_array_value<std::string>{} };
-	case daw::fnv1a_hash( "jsonchecker_fail/fail05.json" ):
-		return test_functions_t{ get_array_value<std::string>{} };
-	case daw::fnv1a_hash( "jsonchecker_fail/fail06.json" ):
-		return test_functions_t{ get_array_value<std::string>{} };
-	case daw::fnv1a_hash( "jsonchecker_fail/fail07.json" ):
-		return test_functions_t{ get_array_value<std::string>{} };
-	case daw::fnv1a_hash( "jsonchecker_fail/fail08.json" ):
-		return test_functions_t{ get_array_value<std::string>{} };
-	case daw::fnv1a_hash( "jsonchecker_fail/fail09.json" ):
-		return test_functions_t{ get_value<std::map<std::string, bool>>{} };
-	case daw::fnv1a_hash( "jsonchecker_fail/fail10.json" ):
-		return test_functions_t{ get_value<std::map<std::string, bool>>{} };
-	case daw::fnv1a_hash( "jsonchecker_fail/fail11.json" ):
-		return test_functions_t{ get_value<std::map<std::string, int>>{} };
-	case daw::fnv1a_hash( "jsonchecker_fail/fail12.json" ):
-		return test_functions_t{ get_value<std::map<std::string, std::string>>{} };
-	case daw::fnv1a_hash( "jsonchecker_fail/fail13.json" ):
-		return test_functions_t{ get_value<std::map<std::string, int>>{} };
-	case daw::fnv1a_hash( "jsonchecker_fail/fail14.json" ):
-		return test_functions_t{ get_value<std::map<std::string, int>>{} };
-	case daw::fnv1a_hash( "jsonchecker_fail/fail15.json" ):
-		return test_functions_t{ get_array_value<std::string>{} };
-	case daw::fnv1a_hash( "jsonchecker_fail/fail16.json" ):
-		return test_functions_t{ get_array_value<std::string>{} };
-	case daw::fnv1a_hash( "jsonchecker_fail/fail17.json" ):
-		return test_functions_t{ get_array_value<std::string>{} };
-	case daw::fnv1a_hash( "jsonchecker_fail/fail19.json" ):
-		return test_functions_t{
-		  get_value<std::map<std::string, std::optional<int>>>{} };
-	case daw::fnv1a_hash( "jsonchecker_fail/fail20.json" ):
-		return test_functions_t{
-		  get_value<std::map<std::string, std::optional<int>>>{} };
-	case daw::fnv1a_hash( "jsonchecker_fail/fail21.json" ):
-		return test_functions_t{
-		  get_value<std::map<std::string, std::optional<int>>>{} };
-	case daw::fnv1a_hash( "jsonchecker_fail/fail22.json" ):
-		return test_functions_t{ get_array_value<std::string>{} };
-	case daw::fnv1a_hash( "jsonchecker_fail/fail23.json" ):
-		return test_functions_t{ get_array_value<std::string>{} };
-	case daw::fnv1a_hash( "jsonchecker_fail/fail24.json" ):
-		return test_functions_t{ get_array_value<std::string>{} };
-	case daw::fnv1a_hash( "jsonchecker_fail/fail25.json" ):
-		return test_functions_t{ get_array_value<std::string>{} };
-	case daw::fnv1a_hash( "jsonchecker_fail/fail26.json" ):
-		return test_functions_t{ get_array_value<std::string>{} };
-	case daw::fnv1a_hash( "jsonchecker_fail/fail27.json" ):
-		return test_functions_t{ get_array_value<std::string>{} };
-	case daw::fnv1a_hash( "jsonchecker_fail/fail28.json" ):
-		return test_functions_t{ get_array_value<std::string>{} };
-	case daw::fnv1a_hash( "jsonchecker_fail/fail29.json" ):
-		return test_functions_t{ get_array_value<double>{} };
-	case daw::fnv1a_hash( "jsonchecker_fail/fail30.json" ):
-		return test_functions_t{ get_array_value<double>{} };
-	case daw::fnv1a_hash( "jsonchecker_fail/fail31.json" ):
-		return test_functions_t{ get_array_value<double>{} };
-	case daw::fnv1a_hash( "jsonchecker_fail/fail32.json" ):
-		return test_functions_t{ get_value<std::map<std::string, bool>>{} };
-	case daw::fnv1a_hash( "jsonchecker_fail/fail33.json" ):
-		return test_functions_t{ get_array_value<std::string>{} };
-		/*		case daw::fnv1a_hash( "jsonchecker_pass/pass01.json" ):
-		      return test_functions_t{&testPolyVec};*/ // Polymorphic Array, probaly vector<json_value>
-	case daw::fnv1a_hash( "jsonchecker_pass/pass02.json" ):
-		return test_functions_t{ get_array_value<L18>{} };
-	case daw::fnv1a_hash( "jsonchecker_pass/pass03.json" ):
-		return test_functions_t{ map2m01_t{} };
-	case daw::fnv1a_hash( "roundtrip/roundtrip01.json" ):
-		return test_functions_t{
-		  get_array_value<json_number_null<no_name, std::optional<int>>,
-		                  std::optional<int>>{} };
-	case daw::fnv1a_hash( "roundtrip/roundtrip02.json" ):
-		return test_functions_t{ get_array_value<bool>{} };
-	case daw::fnv1a_hash( "roundtrip/roundtrip03.json" ):
-		return test_functions_t{ get_array_value<bool>{} };
-	case daw::fnv1a_hash( "roundtrip/roundtrip04.json" ):
-		return test_functions_t{ get_array_value<int>{} };
-	case daw::fnv1a_hash( "roundtrip/roundtrip05.json" ):
-		return test_functions_t{ get_array_value<std::string>{} };
-	case daw::fnv1a_hash( "roundtrip/roundtrip06.json" ):
-		return test_functions_t{ get_array_value<int>{} };
-	case daw::fnv1a_hash( "roundtrip/roundtrip07.json" ):
-		return test_functions_t{ get_value<std::map<std::string, std::string>>{} };
-	case daw::fnv1a_hash( "roundtrip/roundtrip08.json" ):
-		return test_functions_t{ get_array_value<int>{} };
-	case daw::fnv1a_hash( "roundtrip/roundtrip09.json" ):
-		return test_functions_t{ get_value<object2>{} };
-	case daw::fnv1a_hash( "roundtrip/roundtrip10.json" ):
-		return test_functions_t{ get_value<object3>{} };
-	case daw::fnv1a_hash( "roundtrip/roundtrip11.json" ):
-		return test_functions_t{ get_array_value<int>{} };
-	case daw::fnv1a_hash( "roundtrip/roundtrip12.json" ):
-		return test_functions_t{ get_array_value<int>{} };
-	case daw::fnv1a_hash( "roundtrip/roundtrip13.json" ):
-		return test_functions_t{ get_array_value<long>{} };
-	case daw::fnv1a_hash( "roundtrip/roundtrip14.json" ):
-		return test_functions_t{ get_array_value<long>{} };
-	case daw::fnv1a_hash( "roundtrip/roundtrip15.json" ):
-		return test_functions_t{ get_array_value<int>{} };
-	case daw::fnv1a_hash( "roundtrip/roundtrip16.json" ):
-		return test_functions_t{ get_array_value<int>{} };
-	case daw::fnv1a_hash( "roundtrip/roundtrip17.json" ):
-		return test_functions_t{ get_array_value<long>{} };
-	case daw::fnv1a_hash( "roundtrip/roundtrip18.json" ):
-		return test_functions_t{ get_array_value<long>{} };
-	case daw::fnv1a_hash( "roundtrip/roundtrip19.json" ):
-		return test_functions_t{ get_array_value<long>{} };
-	case daw::fnv1a_hash( "roundtrip/roundtrip20.json" ):
-		return test_functions_t{ get_array_value<double>{} };
-	case daw::fnv1a_hash( "roundtrip/roundtrip21.json" ):
-		return test_functions_t{ get_array_value<double>{} };
-	case daw::fnv1a_hash( "roundtrip/roundtrip22.json" ):
-		return test_functions_t{ get_array_value<double>{} };
-	case daw::fnv1a_hash( "roundtrip/roundtrip23.json" ):
-		return test_functions_t{ get_array_value<double>{} };
-	case daw::fnv1a_hash( "roundtrip/roundtrip24.json" ):
-		return test_functions_t{ get_array_value<double>{} };
-	case daw::fnv1a_hash( "roundtrip/roundtrip25.json" ):
-		return test_functions_t{ get_array_value<double>{} };
-	case daw::fnv1a_hash( "roundtrip/roundtrip26.json" ):
-		return test_functions_t{ get_array_value<double>{} };
-	case daw::fnv1a_hash( "roundtrip/roundtrip27.json" ):
-		return test_functions_t{ get_array_value<double>{} };
+	test_functions_t choose_test( char const *test_name, std::size_t sz ) {
+		switch( daw::fnv1a_hash( test_name ) ) {
+		case daw::fnv1a_hash( "vector-double" ):
+			return test_functions_t{ test_vector_double{ sz } };
+		case daw::fnv1a_hash( "vector-string" ):
+			return test_functions_t{ test_vector_string{ sz } };
+		case daw::fnv1a_hash( "performance/canada.json" ):
+			return test_functions_t{
+			  get_value2<daw::geojson::Polygon>{ "features[0].geometry" } };
+		case daw::fnv1a_hash( "performance/citm_catalog.json" ):
+			return test_functions_t{ get_value<daw::citm::citm_object_t>{} };
+		case daw::fnv1a_hash( "performance/twitter.json" ):
+			return test_functions_t{ get_twitter_value{} };
+		case daw::fnv1a_hash( "jsonchecker_fail/fail02.json" ):
+			return test_functions_t{ get_value<std::vector<std::string>>{} };
+		case daw::fnv1a_hash( "jsonchecker_fail/fail03.json" ):
+			return test_functions_t{
+			  get_value<std::map<std::string, std::string>>{} };
+		case daw::fnv1a_hash( "jsonchecker_fail/fail04.json" ):
+			return test_functions_t{ get_value<std::vector<std::string>>{} };
+		case daw::fnv1a_hash( "jsonchecker_fail/fail05.json" ):
+			return test_functions_t{ get_value<std::vector<std::string>>{} };
+		case daw::fnv1a_hash( "jsonchecker_fail/fail06.json" ):
+			return test_functions_t{ get_value<std::vector<std::string>>{} };
+		case daw::fnv1a_hash( "jsonchecker_fail/fail07.json" ):
+			return test_functions_t{ get_value<std::vector<std::string>>{} };
+		case daw::fnv1a_hash( "jsonchecker_fail/fail08.json" ):
+			return test_functions_t{ get_value<std::vector<std::string>>{} };
+		case daw::fnv1a_hash( "jsonchecker_fail/fail09.json" ):
+			return test_functions_t{ get_value<std::map<std::string, bool>>{} };
+		case daw::fnv1a_hash( "jsonchecker_fail/fail10.json" ):
+			return test_functions_t{ get_value<std::map<std::string, bool>>{} };
+		case daw::fnv1a_hash( "jsonchecker_fail/fail11.json" ):
+			return test_functions_t{ get_value<std::map<std::string, int>>{} };
+		case daw::fnv1a_hash( "jsonchecker_fail/fail12.json" ):
+			return test_functions_t{
+			  get_value<std::map<std::string, std::string>>{} };
+		case daw::fnv1a_hash( "jsonchecker_fail/fail13.json" ):
+			return test_functions_t{ get_value<std::map<std::string, int>>{} };
+		case daw::fnv1a_hash( "jsonchecker_fail/fail14.json" ):
+			return test_functions_t{ get_value<std::map<std::string, int>>{} };
+		case daw::fnv1a_hash( "jsonchecker_fail/fail15.json" ):
+			return test_functions_t{ get_value<std::vector<std::string>>{} };
+		case daw::fnv1a_hash( "jsonchecker_fail/fail16.json" ):
+			return test_functions_t{ get_value<std::vector<std::string>>{} };
+		case daw::fnv1a_hash( "jsonchecker_fail/fail17.json" ):
+			return test_functions_t{ get_value<std::vector<std::string>>{} };
+		case daw::fnv1a_hash( "jsonchecker_fail/fail19.json" ):
+			return test_functions_t{
+			  get_value<std::map<std::string, std::optional<int>>>{} };
+		case daw::fnv1a_hash( "jsonchecker_fail/fail20.json" ):
+			return test_functions_t{
+			  get_value<std::map<std::string, std::optional<int>>>{} };
+		case daw::fnv1a_hash( "jsonchecker_fail/fail21.json" ):
+			return test_functions_t{
+			  get_value<std::map<std::string, std::optional<int>>>{} };
+		case daw::fnv1a_hash( "jsonchecker_fail/fail22.json" ):
+			return test_functions_t{ get_value<std::vector<std::string>>{} };
+		case daw::fnv1a_hash( "jsonchecker_fail/fail23.json" ):
+			return test_functions_t{ get_value<std::vector<std::string>>{} };
+		case daw::fnv1a_hash( "jsonchecker_fail/fail24.json" ):
+			return test_functions_t{ get_value<std::vector<std::string>>{} };
+		case daw::fnv1a_hash( "jsonchecker_fail/fail25.json" ):
+			return test_functions_t{ get_value<std::vector<std::string>>{} };
+		case daw::fnv1a_hash( "jsonchecker_fail/fail26.json" ):
+			return test_functions_t{ get_value<std::vector<std::string>>{} };
+		case daw::fnv1a_hash( "jsonchecker_fail/fail27.json" ):
+			return test_functions_t{ get_value<std::vector<std::string>>{} };
+		case daw::fnv1a_hash( "jsonchecker_fail/fail28.json" ):
+			return test_functions_t{ get_value<std::vector<std::string>>{} };
+		case daw::fnv1a_hash( "jsonchecker_fail/fail29.json" ):
+			return test_functions_t{ get_value<std::vector<double>>{} };
+		case daw::fnv1a_hash( "jsonchecker_fail/fail30.json" ):
+			return test_functions_t{ get_value<std::vector<double>>{} };
+		case daw::fnv1a_hash( "jsonchecker_fail/fail31.json" ):
+			return test_functions_t{ get_value<std::vector<double>>{} };
+		case daw::fnv1a_hash( "jsonchecker_fail/fail32.json" ):
+			return test_functions_t{ get_value<std::map<std::string, bool>>{} };
+		case daw::fnv1a_hash( "jsonchecker_fail/fail33.json" ):
+			return test_functions_t{ get_value<std::vector<std::string>>{} };
+			/*		case daw::fnv1a_hash( "jsonchecker_pass/pass01.json" ):
+			      return test_functions_t{&testPolyVec};*/ // Polymorphic Array, probaly vector<json_value>
+			/*
+		case daw::fnv1a_hash( "jsonchecker_pass/pass02.json" ):
+			return test_functions_t{ get_value<std::vector<L18>>{} };
+			*/
+		case daw::fnv1a_hash( "jsonchecker_pass/pass03.json" ):
+			return test_functions_t{ map2m01_t{} };
+		case daw::fnv1a_hash( "roundtrip/roundtrip01.json" ):
+			return test_functions_t{ get_value<std::vector<std::optional<int>>>{} };
+		case daw::fnv1a_hash( "roundtrip/roundtrip02.json" ):
+			return test_functions_t{ get_value<std::vector<bool>>{} };
+		case daw::fnv1a_hash( "roundtrip/roundtrip03.json" ):
+			return test_functions_t{ get_value<std::vector<bool>>{} };
+		case daw::fnv1a_hash( "roundtrip/roundtrip04.json" ):
+			return test_functions_t{ get_value<std::vector<int>>{} };
+		case daw::fnv1a_hash( "roundtrip/roundtrip05.json" ):
+			return test_functions_t{ get_value<std::vector<std::string>>{} };
+		case daw::fnv1a_hash( "roundtrip/roundtrip06.json" ):
+			return test_functions_t{ get_value<std::vector<int>>{} };
+		case daw::fnv1a_hash( "roundtrip/roundtrip07.json" ):
+			return test_functions_t{
+			  get_value<std::map<std::string, std::string>>{} };
+		case daw::fnv1a_hash( "roundtrip/roundtrip08.json" ):
+			return test_functions_t{ get_value<std::vector<int>>{} };
+		case daw::fnv1a_hash( "roundtrip/roundtrip09.json" ):
+			return test_functions_t{ get_value<object2>{} };
+		case daw::fnv1a_hash( "roundtrip/roundtrip10.json" ):
+			return test_functions_t{ get_value<object3>{} };
+		case daw::fnv1a_hash( "roundtrip/roundtrip11.json" ):
+			return test_functions_t{ get_value<std::vector<int>>{} };
+		case daw::fnv1a_hash( "roundtrip/roundtrip12.json" ):
+			return test_functions_t{ get_value<std::vector<int>>{} };
+		case daw::fnv1a_hash( "roundtrip/roundtrip13.json" ):
+			return test_functions_t{ get_value<std::vector<long>>{} };
+		case daw::fnv1a_hash( "roundtrip/roundtrip14.json" ):
+			return test_functions_t{ get_value<std::vector<long>>{} };
+		case daw::fnv1a_hash( "roundtrip/roundtrip15.json" ):
+			return test_functions_t{ get_value<std::vector<int>>{} };
+		case daw::fnv1a_hash( "roundtrip/roundtrip16.json" ):
+			return test_functions_t{ get_value<std::vector<int>>{} };
+		case daw::fnv1a_hash( "roundtrip/roundtrip17.json" ):
+			return test_functions_t{ get_value<std::vector<long>>{} };
+		case daw::fnv1a_hash( "roundtrip/roundtrip18.json" ):
+			return test_functions_t{ get_value<std::vector<long>>{} };
+		case daw::fnv1a_hash( "roundtrip/roundtrip19.json" ):
+			return test_functions_t{ get_value<std::vector<long>>{} };
+		case daw::fnv1a_hash( "roundtrip/roundtrip20.json" ):
+			return test_functions_t{ get_value<std::vector<double>>{} };
+		case daw::fnv1a_hash( "roundtrip/roundtrip21.json" ):
+			return test_functions_t{ get_value<std::vector<double>>{} };
+		case daw::fnv1a_hash( "roundtrip/roundtrip22.json" ):
+			return test_functions_t{ get_value<std::vector<double>>{} };
+		case daw::fnv1a_hash( "roundtrip/roundtrip23.json" ):
+			return test_functions_t{ get_value<std::vector<double>>{} };
+		case daw::fnv1a_hash( "roundtrip/roundtrip24.json" ):
+			return test_functions_t{ get_value<std::vector<double>>{} };
+		case daw::fnv1a_hash( "roundtrip/roundtrip25.json" ):
+			return test_functions_t{ get_value<std::vector<double>>{} };
+		case daw::fnv1a_hash( "roundtrip/roundtrip26.json" ):
+			return test_functions_t{ get_value<std::vector<double>>{} };
+		case daw::fnv1a_hash( "roundtrip/roundtrip27.json" ):
+			return test_functions_t{ get_value<std::vector<double>>{} };
+		}
+		return test_functions_t{ test_empty{} };
 	}
-	return test_functions_t{ test_empty{} };
-}
-
+} // namespace
 class daw_json_linkTest : public TestBase {
 	mutable test_functions_t current_runner = test_empty{ };
 

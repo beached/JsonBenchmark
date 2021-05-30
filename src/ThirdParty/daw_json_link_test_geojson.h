@@ -12,6 +12,7 @@
 
 #include <array>
 #include <cstdint>
+#include <string>
 #include <string_view>
 #include <tuple>
 #include <utility>
@@ -47,3 +48,10 @@ namespace daw::geojson {
 		std::vector<Feature> features;
 	}; // FeatureCollection
 } // namespace daw::geojson
+
+namespace daw::json {
+	extern template daw::geojson::Polygon
+	from_json<daw::geojson::Polygon, NoCommentSkippingPolicyChecked, false,
+	          daw::geojson::Polygon>( std::string_view const &json_data,
+	                                  std::string_view );
+}

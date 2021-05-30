@@ -1,5 +1,10 @@
 #pragma once
 
+#include "daw_json_link_test_citm_json.h"
+#include "daw_json_link_test_geojson_json.h"
+#include "daw_json_link_test_twitter.h"
+
+#include <daw/cpp_17.h>
 #include <daw/json/daw_json_link.h>
 
 #include <cassert>
@@ -34,14 +39,16 @@ using L16 = std::vector<L15>;
 using L17 = std::vector<L16>;
 using L18 = std::vector<L17>;
 
-struct object2 {
-	std::string foo;
-};
+inline namespace {
+	struct object2 {
+		std::string foo;
+	};
 
-struct object3 {
-	std::optional<int> a;
-	std::string foo;
-};
+	struct object3 {
+		std::optional<int> a;
+		std::string foo;
+	};
+} // namespace
 
 namespace daw::json {
 	template<>
@@ -66,293 +73,282 @@ namespace daw::json {
 		}
 	};
 } // namespace daw::json
+inline namespace {
+	struct string_result : StringResultBase {
+		std::string value;
 
-struct string_result : StringResultBase {
-	std::string value;
+		string_result( std::string &&s ) noexcept
+		  : value( std::move( s ) ) {}
 
-	char const *c_str( ) const override {
-		return value.c_str( );
-	}
-};
+		char const *c_str( ) const override {
+			return value.c_str( );
+		}
+	};
 
-template<typename Value>
-struct value_result : ParseResultBase {
-	Value data;
-};
+	template<typename Value>
+	struct value_result : ParseResultBase {
+		Value data;
 
-template<typename Value>
-struct get_value {
-	std::string json_path = std::string{ };
+		value_result( Value &&v )
+		  : data( std::move( v ) ) {}
+	};
 
-	ParseResultBase *Parse( char const *json, size_t sz ) const {
-		try {
-			if( json_path.empty( ) ) {
-				return new value_result<Value>{
+	struct get_twitter_value {
+		ParseResultBase *Parse( char const *json, size_t sz ) const {
+			try {
+				return new value_result<daw::twitter::twitter_object_t>{
+				  parse_twitter( std::string_view( json, sz ) ) };
+			} catch( json_exception const & ) { return nullptr; }
+			return nullptr;
+		}
+
+		StringResultBase *Stringify( ParseResultBase const *value ) const {
+			auto const *inputValue =
+			  dynamic_cast<value_result<daw::twitter::twitter_object_t> const *>(
+			    value );
+			assert( inputValue );
+			try {
+				return new string_result{ serialize_twitter( inputValue->data ) };
+			} catch( json_exception const & ) { return nullptr; }
+		}
+
+		bool ParseDouble( char const *, double * ) const {
+			return false;
+		}
+
+		bool ParseString( char const *, std::string & ) const {
+			return false;
+		}
+
+		StringResultBase *Prettify( ParseResultBase const * ) const {
+			return nullptr;
+		}
+
+		bool Statistics( ParseResultBase const *, Stat * ) const {
+			return false;
+		}
+
+		StringResultBase *SaxRoundtrip( char const *, size_t ) const {
+			return nullptr;
+		}
+
+		bool SaxStatistics( char const *, size_t, Stat * ) const {
+			return false;
+		}
+	};
+
+	template<typename Value>
+	struct get_value {
+		using parse_result_t = daw::remove_cvref_t<decltype( from_json<Value>(
+		  std::declval<std::string_view>( ) ) )>;
+
+		ParseResultBase *Parse( char const *json, size_t sz ) const {
+			try {
+				return new value_result<parse_result_t>{
 				  from_json<Value>( std::string_view( json, sz ) ) };
-			} else {
-				return new value_result<Value>{ from_json<Value>(
-				  std::string_view( json, sz ),
-				  std::string_view( json_path.data( ), json_path.size( ) ) ) };
-			}
-		} catch( json_exception const & ) { return nullptr; }
-		return nullptr;
-	}
-
-	StringResultBase *Stringify( ParseResultBase const *value ) const {
-		auto const *inputValue = dynamic_cast<value_result<Value> const *>( value );
-		if( not inputValue ) {
+			} catch( json_exception const & ) { return nullptr; }
 			return nullptr;
 		}
-		try {
-			return new string_result{ to_json( inputValue->data ) };
-		} catch( json_exception const & ) { return nullptr; }
-	}
 
-	bool ParseDouble( char const *, double * ) const {
-		return false;
-	}
+		StringResultBase *Stringify( ParseResultBase const *value ) const {
+			auto const *inputValue =
+			  dynamic_cast<value_result<parse_result_t> const *>( value );
+			assert( inputValue );
 
-	bool ParseString( char const *, std::string & ) const {
-		return false;
-	}
+			try {
+				return new string_result{ to_json( inputValue->data ) };
+			} catch( json_exception const & ) { return nullptr; }
+		}
 
-	StringResultBase *Prettify( ParseResultBase const * ) const {
-		return nullptr;
-	}
+		bool ParseDouble( char const *, double * ) const {
+			return false;
+		}
 
-	bool Statistics( ParseResultBase const *, Stat * ) const {
-		return false;
-	}
+		bool ParseString( char const *, std::string & ) const {
+			return false;
+		}
 
-	StringResultBase *SaxRoundtrip( char const *, size_t ) const {
-		return nullptr;
-	}
-
-	bool SaxStatistics( char const *, size_t, Stat * ) const {
-		return false;
-	}
-};
-
-template<typename T, typename U = T>
-struct get_key_value {
-	std::string json_path = std::string{ };
-
-	using result_t = std::map<std::string, T>;
-	using jv_t = json_key_value<no_name, result_t, U>;
-
-	ParseResultBase *Parse( char const *json, size_t sz ) const {
-		try {
-			if( json_path.empty( ) ) {
-				return new value_result<result_t>{
-				  from_json<jv_t>( std::string_view( json, sz ) ) };
-			} else {
-				return new value_result<result_t>{ from_json<jv_t>(
-				  std::string_view( json, sz ),
-				  std::string_view( json_path.data( ), json_path.size( ) ) ) };
-			}
-		} catch( json_exception const & ) { return nullptr; }
-		return nullptr;
-	}
-
-	StringResultBase *Stringify( ParseResultBase const *value ) const {
-		auto const *inputT = dynamic_cast<value_result<result_t> const *>( value );
-		if( not inputT ) {
+		StringResultBase *Prettify( ParseResultBase const * ) const {
 			return nullptr;
 		}
-		try {
-			return new string_result{ to_json<std::string, jv_t>( inputT->data ) };
-		} catch( json_exception const & ) { return nullptr; }
-	}
 
-	bool ParseDouble( char const *, double * ) const {
-		return false;
-	}
+		bool Statistics( ParseResultBase const *, Stat * ) const {
+			return false;
+		}
 
-	bool ParseString( char const *, std::string & ) const {
-		return false;
-	}
+		StringResultBase *SaxRoundtrip( char const *, size_t ) const {
+			return nullptr;
+		}
 
-	StringResultBase *Prettify( ParseResultBase const * ) const {
-		return nullptr;
-	}
+		bool SaxStatistics( char const *, size_t, Stat * ) const {
+			return false;
+		}
+	};
 
-	bool Statistics( ParseResultBase const *, Stat * ) const {
-		return false;
-	}
+	template<typename Value>
+	struct get_value2 {
+		std::string json_path = std::string{ };
+		using parse_result_t = daw::remove_cvref_t<decltype( from_json<Value>(
+		  std::declval<std::string_view>( ) ) )>;
 
-	StringResultBase *SaxRoundtrip( char const *, size_t ) const {
-		return nullptr;
-	}
-
-	bool SaxStatistics( char const *, size_t, Stat * ) const {
-		return false;
-	}
-};
-
-template<typename T, typename U = T>
-struct get_array_value {
-	std::string json_path = std::string{ };
-
-	ParseResultBase *Parse( char const *json, size_t sz ) const {
-		try {
-			auto result = std::make_unique<value_result<std::vector<U>>>( );
-			if( json_path.empty( ) ) {
-				result->data = from_json_array<T>( std::string_view( json, sz ) );
-			} else {
-				result->data = from_json_array<T>(
+		ParseResultBase *Parse( char const *json, size_t sz ) const {
+			try {
+				return new value_result<parse_result_t>{ from_json<Value>(
 				  std::string_view( json, sz ),
-				  std::string_view( json_path.data( ), json_path.size( ) ) );
-			}
-			return result.release( );
-		} catch( json_exception const & ) { return nullptr; }
-		return nullptr;
-	}
+				  std::string_view( json_path.data( ), json_path.size( ) ) ) };
+			} catch( json_exception const & ) { return nullptr; }
+			return nullptr;
+		}
 
-	StringResultBase *Stringify( ParseResultBase const *value ) const {
-		auto const *inputT = dynamic_cast<value_result<U> const *>( value );
-		assert( inputT );
-		try {
-			return new string_result{ to_json_array( inputT->data ) };
-		} catch( json_exception const & ) { return nullptr; }
-	}
+		StringResultBase *Stringify( ParseResultBase const *value ) const {
+			auto const *inputValue =
+			  dynamic_cast<value_result<parse_result_t> const *>( value );
+			assert( inputValue );
 
-	bool ParseDouble( char const *, double * ) const {
-		return false;
-	}
+			try {
+				return new string_result{ to_json( inputValue->data ) };
+			} catch( json_exception const & ) { return nullptr; }
+		}
 
-	bool ParseString( char const *, std::string & ) const {
-		return false;
-	}
+		bool ParseDouble( char const *, double * ) const {
+			return false;
+		}
 
-	StringResultBase *Prettify( ParseResultBase const * ) const {
-		return nullptr;
-	}
+		bool ParseString( char const *, std::string & ) const {
+			return false;
+		}
 
-	bool Statistics( ParseResultBase const *, Stat * ) const {
-		return false;
-	}
+		StringResultBase *Prettify( ParseResultBase const * ) const {
+			return nullptr;
+		}
 
-	StringResultBase *SaxRoundtrip( char const *, size_t ) const {
-		return nullptr;
-	}
+		bool Statistics( ParseResultBase const *, Stat * ) const {
+			return false;
+		}
 
-	bool SaxStatistics( char const *, size_t, Stat * ) const {
-		return false;
-	}
-};
+		StringResultBase *SaxRoundtrip( char const *, size_t ) const {
+			return nullptr;
+		}
 
-struct test_vector_string {
-	std::size_t document_size;
+		bool SaxStatistics( char const *, size_t, Stat * ) const {
+			return false;
+		}
+	};
 
-	ParseResultBase *Parse( char const *, size_t ) const {
-		return nullptr;
-	}
+	struct test_vector_string {
+		std::size_t document_size;
 
-	bool ParseDouble( char const *, double * ) const {
-		return false;
-	}
+		ParseResultBase *Parse( char const *, size_t ) const {
+			return nullptr;
+		}
 
-	bool ParseString( char const *json_document, std::string &result ) const {
-		try {
-			result = from_json_array<std::string>(
-			           std::string_view( json_document, document_size ) )
-			           .at( 0 );
-			return true;
-		} catch( json_exception const & ) { return false; }
-	}
+		bool ParseDouble( char const *, double * ) const {
+			return false;
+		}
 
-	StringResultBase *SaxRoundtrip( char const *, size_t ) const {
-		return nullptr;
-	}
+		bool ParseString( char const *json_document, std::string &result ) const {
+			try {
+				result = from_json<std::vector<std::string>>(
+				           std::string_view( json_document, document_size ) )
+				           .at( 0 );
+				return true;
+			} catch( json_exception const & ) { return false; }
+		}
 
-	StringResultBase *Stringify( ParseResultBase const * ) const {
-		return nullptr;
-	}
+		StringResultBase *SaxRoundtrip( char const *, size_t ) const {
+			return nullptr;
+		}
 
-	StringResultBase *Prettify( ParseResultBase const * ) const {
-		return nullptr;
-	}
+		StringResultBase *Stringify( ParseResultBase const * ) const {
+			return nullptr;
+		}
 
-	bool Statistics( ParseResultBase const *, Stat * ) const {
-		return false;
-	}
+		StringResultBase *Prettify( ParseResultBase const * ) const {
+			return nullptr;
+		}
 
-	bool SaxStatistics( char const *, size_t, Stat * ) const {
-		return false;
-	}
-};
+		bool Statistics( ParseResultBase const *, Stat * ) const {
+			return false;
+		}
 
-struct test_vector_double {
-	std::size_t document_size;
+		bool SaxStatistics( char const *, size_t, Stat * ) const {
+			return false;
+		}
+	};
 
-	ParseResultBase *Parse( char const *, size_t ) const {
-		return nullptr;
-	}
+	struct test_vector_double {
+		std::size_t document_size;
 
-	bool ParseDouble( char const *json_document, double *result ) const {
-		try {
-			*result = from_json_array<double>(
-			            std::string_view( json_document, document_size ) )
-			            .at( 0 );
-			return true;
-		} catch( json_exception const & ) { return false; }
-	}
+		ParseResultBase *Parse( char const *, size_t ) const {
+			return nullptr;
+		}
 
-	bool ParseString( char const *, std::string & ) const {
-		return false;
-	}
+		bool ParseDouble( char const *json_document, double *result ) const {
+			try {
+				*result = from_json<std::vector<double>>(
+				            std::string_view( json_document, document_size ) )
+				            .at( 0 );
+				return true;
+			} catch( json_exception const & ) { return false; }
+		}
 
-	StringResultBase *SaxRoundtrip( char const *, size_t ) const {
-		return nullptr;
-	}
+		bool ParseString( char const *, std::string & ) const {
+			return false;
+		}
 
-	StringResultBase *Stringify( ParseResultBase const * ) const {
-		return nullptr;
-	}
+		StringResultBase *SaxRoundtrip( char const *, size_t ) const {
+			return nullptr;
+		}
 
-	StringResultBase *Prettify( ParseResultBase const * ) const {
-		return nullptr;
-	}
+		StringResultBase *Stringify( ParseResultBase const * ) const {
+			return nullptr;
+		}
 
-	bool Statistics( ParseResultBase const *, Stat * ) const {
-		return false;
-	}
+		StringResultBase *Prettify( ParseResultBase const * ) const {
+			return nullptr;
+		}
 
-	bool SaxStatistics( char const *, size_t, Stat * ) const {
-		return false;
-	}
-};
+		bool Statistics( ParseResultBase const *, Stat * ) const {
+			return false;
+		}
 
-struct test_empty {
-	ParseResultBase *Parse( char const *, size_t ) const {
-		return nullptr;
-	}
+		bool SaxStatistics( char const *, size_t, Stat * ) const {
+			return false;
+		}
+	};
 
-	bool ParseDouble( char const *, double * ) const {
-		return false;
-	}
+	struct test_empty {
+		ParseResultBase *Parse( char const *, size_t ) const {
+			return nullptr;
+		}
 
-	bool ParseString( char const *, std::string & ) const {
-		return false;
-	}
+		bool ParseDouble( char const *, double * ) const {
+			return false;
+		}
 
-	StringResultBase *SaxRoundtrip( char const *, size_t ) const {
-		return nullptr;
-	}
+		bool ParseString( char const *, std::string & ) const {
+			return false;
+		}
 
-	StringResultBase *Stringify( ParseResultBase const * ) const {
-		return nullptr;
-	}
+		StringResultBase *SaxRoundtrip( char const *, size_t ) const {
+			return nullptr;
+		}
 
-	StringResultBase *Prettify( ParseResultBase const * ) const {
-		return nullptr;
-	}
+		StringResultBase *Stringify( ParseResultBase const * ) const {
+			return nullptr;
+		}
 
-	bool Statistics( ParseResultBase const *, Stat * ) const {
-		return false;
-	}
+		StringResultBase *Prettify( ParseResultBase const * ) const {
+			return nullptr;
+		}
 
-	bool SaxStatistics( char const *, size_t, Stat * ) const {
-		return false;
-	}
-};
+		bool Statistics( ParseResultBase const *, Stat * ) const {
+			return false;
+		}
+
+		bool SaxStatistics( char const *, size_t, Stat * ) const {
+			return false;
+		}
+	};
+} // namespace
+

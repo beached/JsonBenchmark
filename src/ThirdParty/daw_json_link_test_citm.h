@@ -69,3 +69,9 @@ namespace daw::citm {
 
 	citm_object_t parse_citm( std::string_view json_doc );
 } // namespace daw::citm
+
+namespace daw::json {
+	extern template daw::citm::citm_object_t
+	from_json<daw::citm::citm_object_t, NoCommentSkippingPolicyChecked, false,
+	          daw::citm::citm_object_t>( std::string_view const &json_data );
+}

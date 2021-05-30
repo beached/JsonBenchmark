@@ -12,6 +12,7 @@
 
 #include <cstdint>
 #include <optional>
+#include <string>
 #include <string_view>
 #include <tuple>
 #include <vector>
@@ -217,3 +218,6 @@ namespace daw::twitter {
 		search_metadata_t search_metadata;
 	}; // twitter_object_t
 } // namespace daw::twitter
+
+daw::twitter::twitter_object_t parse_twitter( std::string_view json_data );
+std::string serialize_twitter( daw::twitter::twitter_object_t const &v );

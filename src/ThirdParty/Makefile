@@ -22,7 +22,10 @@ LDLIBS                      += ../../thirdparty/jsonxx/libjsonxx.a
 LDLIBS                      += ../../thirdparty/gason/libgason.a
 LDLIBS                      += ../../thirdparty/Jzon/libJzon.a
 
-daw_json_linkTest_CXXFLAGS  += -DDAW_NO_FLATTEN -std=c++17 -I../../thirdparty/daw_json_link/include/ -I../../thirdparty/daw_json_link/_deps/daw_header_libraries-src/include  -I../../thirdparty/daw_json_link/_deps/daw_utf_range-src/include
+daw_json_linkTest_CXXFLAGS  += -std=c++17 -march=native -I../../thirdparty/daw_json_link/include/ -I../../thirdparty/daw_json_link/_deps/daw_header_libraries-src/include  -I../../thirdparty/daw_json_link/_deps/daw_utf_range-src/include
+daw_json_link_test_citm_CXXFLAGS  += -std=c++17 -march=native -I../../thirdparty/daw_json_link/include/ -I../../thirdparty/daw_json_link/_deps/daw_header_libraries-src/include  -I../../thirdparty/daw_json_link/_deps/daw_utf_range-src/include
+daw_json_link_test_twitter_CXXFLAGS  += -std=c++17 -march=native -I../../thirdparty/daw_json_link/include/ -I../../thirdparty/daw_json_link/_deps/daw_header_libraries-src/include  -I../../thirdparty/daw_json_link/_deps/daw_utf_range-src/include
+daw_json_link_test_geojson_CXXFLAGS  += -std=c++17 -march=native -I../../thirdparty/daw_json_link/include/ -I../../thirdparty/daw_json_link/_deps/daw_header_libraries-src/include  -I../../thirdparty/daw_json_link/_deps/daw_utf_range-src/include
 JzonTest_CXXFLAGS           += -I../../thirdparty/Jzon/
 cJSONTest_CXXFLAGS			+= -I../../thirdparty -Wno-nonportable-include-path
 gasonTest_CXXFLAGS			+= -I../../thirdparty/gason/ -Wno-range-loop-analysis
