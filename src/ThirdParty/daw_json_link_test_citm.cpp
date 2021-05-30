@@ -1,12 +1,14 @@
 
 #include "daw_json_link_test_citm_json.h"
 
-#include <daw/json/daw_from_json.h>
+#include <daw/json/daw_json_link.h>
 
 #include <string_view>
 
-namespace daw::json {
-	template daw::citm::citm_object_t
-	from_json<daw::citm::citm_object_t, NoCommentSkippingPolicyChecked, false,
-	          daw::citm::citm_object_t>( std::string_view const &json_data );
+daw::citm::citm_object_t parse_citm(std::string_view json_data) {
+  return daw::json::from_json<daw::citm::citm_object_t>(json_data);
+}
+
+std::string serialize_citm(daw::citm::citm_object_t const &v) {
+  return daw::json::to_json(v);
 }

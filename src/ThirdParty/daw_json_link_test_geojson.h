@@ -19,39 +19,34 @@
 #include <vector>
 
 namespace daw::geojson {
-	struct Property {
-		std::string_view name;
-	}; // Property
+struct Property {
+  std::string_view name;
+}; // Property
 
-	struct Point {
-		double x;
-		double y;
-	};
+struct Point {
+  double x;
+  double y;
+};
 
-	struct Polygon {
-		std::string_view type;
-		std::vector<std::vector<Point>> coordinates;
+struct Polygon {
+  std::string_view type;
+  std::vector<std::vector<Point>> coordinates;
 
-		Polygon( std::string_view t, std::vector<std::vector<Point>> &&coords )
-		  : type( t )
-		  , coordinates( std::move( coords ) ) {}
-	}; // Polygon
+  Polygon(std::string_view t, std::vector<std::vector<Point>> &&coords)
+      : type(t), coordinates(std::move(coords)) {}
+}; // Polygon
 
-	struct Feature {
-		std::string_view type;
-		Property properties;
-		Polygon geometry;
-	}; // Feature
+struct Feature {
+  std::string_view type;
+  Property properties;
+  Polygon geometry;
+}; // Feature
 
-	struct FeatureCollection {
-		std::string_view type;
-		std::vector<Feature> features;
-	}; // FeatureCollection
+struct FeatureCollection {
+  std::string_view type;
+  std::vector<Feature> features;
+}; // FeatureCollection
 } // namespace daw::geojson
 
-namespace daw::json {
-	extern template daw::geojson::Polygon
-	from_json<daw::geojson::Polygon, NoCommentSkippingPolicyChecked, false,
-	          daw::geojson::Polygon>( std::string_view const &json_data,
-	                                  std::string_view );
-}
+daw::geojson::FeatureCollection parse_geojson(std::string_view json_data);
+std::string serialize_geojson(daw::geojson::FeatureCollection const &v);
