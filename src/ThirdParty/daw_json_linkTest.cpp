@@ -33,7 +33,7 @@ using test_functions_t = std::variant<
     get_value<object3>, map2m01_t, test_empty, test_vector_double,
     test_vector_string>;
 
-test_functions_t choose_test(char const *test_name ) {
+test_functions_t choose_test(char const *test_name) {
   switch (daw::fnv1a_hash(test_name)) {
   case daw::fnv1a_hash("vector-double"):
     return test_functions_t{test_vector_double{}};

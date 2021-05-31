@@ -93,7 +93,8 @@ template <typename Value> struct get_value {
   ParseResultBase *Parse(char const *json, size_t sz) const {
     try {
       return new value_result<parse_result_t>{
-          from_json<Value>(std::string_view(json, sz))};
+          from_json<Value, daw::json::ConformancePolicy>(
+              std::string_view(json, sz))};
     } catch (json_exception const &) {
       return nullptr;
     }
@@ -238,11 +239,12 @@ struct test_vector_string {
   bool ParseDouble(char const *, double *) const { return false; }
 
   bool ParseString(char const *json_document, std::string &result) const {
-		auto const document_size = strlen( json_document );
+    auto const document_size = strlen(json_document);
     try {
-      result = from_json<std::vector<std::string>>(
-                   std::string_view(json_document, document_size))
-                   .at(0);
+      result =
+          from_json<std::vector<std::string>, daw::json::ConformancePolicy>(
+              std::string_view(json_document, document_size))
+              .at(0);
       return true;
     } catch (json_exception const &) {
       return false;
@@ -264,9 +266,9 @@ struct test_vector_double {
   ParseResultBase *Parse(char const *, size_t) const { return nullptr; }
 
   bool ParseDouble(char const *json_document, double *result) const {
-		auto const document_size = strlen( json_document );
+    auto const document_size = strlen(json_document);
     try {
-      *result = from_json<std::vector<double>>(
+      *result = from_json<std::vector<double>, daw::json::ConformancePolicy>(
                     std::string_view(json_document, document_size))
                     .at(0);
       return true;
