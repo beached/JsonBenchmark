@@ -41,7 +41,7 @@ template <> struct json_data_contract<daw::twitter::urls_element_t> {
       json_string_raw<url, std::string_view>,
       json_string_raw<expanded_url, std::string_view>,
       json_string_raw<display_url, std::string_view>,
-      json_array<indices, json_custom<no_name, std::string_view>>>;
+      json_array<indices, json_custom_no_name<std::string_view>>>;
 
   [[nodiscard, maybe_unused]] static inline auto
   to_json_data(daw::twitter::urls_element_t const &value) {
@@ -149,6 +149,7 @@ template <> struct json_data_contract<daw::twitter::user_t> {
       json_string_raw<location, std::string_view>,
       json_string_raw<description, std::string_view>,
       json_string_raw_null<url, std::optional<std::string_view>,
+                           string_raw_opts_def,
                            opt_construct_a<std::string_view>>,
       json_class<entities, daw::twitter::entities_t>, json_bool<_jsonprotected>,
       json_custom<followers_count, std::string_view>,
@@ -159,6 +160,7 @@ template <> struct json_data_contract<daw::twitter::user_t> {
       json_custom_null<utc_offset, std::optional<std::string_view>,
                        opt_construct_a<std::string_view>>,
       json_string_raw_null<time_zone, std::optional<std::string_view>,
+                           string_raw_opts_def,
                            opt_construct_a<std::string_view>>,
       json_bool<geo_enabled>, json_bool<verified>,
       json_custom<statuses_count, std::string_view>,
@@ -171,6 +173,7 @@ template <> struct json_data_contract<daw::twitter::user_t> {
       json_string_raw<profile_image_url, std::string_view>,
       json_string_raw<profile_image_url_https, std::string_view>,
       json_string_raw_null<profile_banner_url, std::optional<std::string_view>,
+                           string_raw_opts_def,
                            opt_construct_a<std::string_view>>,
       json_string_raw<profile_link_color, std::string_view>,
       json_string_raw<profile_sidebar_border_color, std::string_view>,
@@ -206,7 +209,7 @@ template <> struct json_data_contract<daw::twitter::hashtags_element_t> {
   static inline constexpr char const indices[] = "indices";
   using type = json_member_list<
       json_string_raw<text, std::string_view>,
-      json_array<indices, json_custom<no_name, std::string_view>>>;
+      json_array<indices, json_custom_no_name<std::string_view>>>;
 
   [[nodiscard, maybe_unused]] static inline auto
   to_json_data(daw::twitter::hashtags_element_t const &value) {
@@ -251,15 +254,15 @@ template <> struct json_data_contract<daw::twitter::tweet_object_t> {
       json_custom_null<in_reply_to_status_id, std::optional<std::string_view>,
                        opt_construct_a<std::string_view>>,
       json_string_raw_null<in_reply_to_status_id_str,
-                           std::optional<std::string_view>,
+                           std::optional<std::string_view>, string_raw_opts_def,
                            opt_construct_a<std::string_view>>,
       json_custom_null<in_reply_to_user_id, std::optional<std::string_view>,
                        opt_construct_a<std::string_view>>,
       json_string_raw_null<in_reply_to_user_id_str,
-                           std::optional<std::string_view>,
+                           std::optional<std::string_view>, string_raw_opts_def,
                            opt_construct_a<std::string_view>>,
       json_string_raw_null<in_reply_to_screen_name,
-                           std::optional<std::string_view>,
+                           std::optional<std::string_view>, string_raw_opts_def,
                            opt_construct_a<std::string_view>>,
       json_class<user, daw::twitter::user_t>,
       json_custom<retweet_count, std::string_view>,
@@ -291,7 +294,7 @@ template <> struct json_data_contract<daw::twitter::user_mentions_element_t> {
       json_string_raw<name, std::string_view>,
       json_custom<id, std::string_view>,
       json_string_raw<id_str, std::string_view>,
-      json_array<indices, json_custom<no_name, std::string_view>>>;
+      json_array<indices, json_custom_no_name<std::string_view>>>;
 
   [[nodiscard, maybe_unused]] static inline auto
   to_json_data(daw::twitter::user_mentions_element_t const &value) {
@@ -387,7 +390,7 @@ template <> struct json_data_contract<daw::twitter::media_element_t> {
   using type = json_member_list<
       json_custom<id, std::string_view>,
       json_string_raw<id_str, std::string_view>,
-      json_array<indices, json_custom<no_name, std::string_view>>,
+      json_array<indices, json_custom_no_name<std::string_view>>,
       json_string_raw<media_url, std::string_view>,
       json_string_raw<media_url_https, std::string_view>,
       json_string_raw<url, std::string_view>,
@@ -442,15 +445,15 @@ template <> struct json_data_contract<daw::twitter::retweeted_status_t> {
       json_custom_null<in_reply_to_status_id, std::optional<std::string_view>,
                        opt_construct_a<std::string_view>>,
       json_string_raw_null<in_reply_to_status_id_str,
-                           std::optional<std::string_view>,
+                           std::optional<std::string_view>, string_raw_opts_def,
                            opt_construct_a<std::string_view>>,
       json_custom_null<in_reply_to_user_id, std::optional<std::string_view>,
                        opt_construct_a<std::string_view>>,
       json_string_raw_null<in_reply_to_user_id_str,
-                           std::optional<std::string_view>,
+                           std::optional<std::string_view>, string_raw_opts_def,
                            opt_construct_a<std::string_view>>,
       json_string_raw_null<in_reply_to_screen_name,
-                           std::optional<std::string_view>,
+                           std::optional<std::string_view>, string_raw_opts_def,
                            opt_construct_a<std::string_view>>,
       json_class<user, daw::twitter::user_t>,
       json_custom<retweet_count, std::string_view>,

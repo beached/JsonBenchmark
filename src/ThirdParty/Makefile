@@ -14,8 +14,6 @@ LDLIBS                      += ../../thirdparty/jvar/lib/libjvar.a
 LDLIBS                      += ../../thirdparty/pjson/libpjson.a
 LDLIBS                      += ../../thirdparty/udb-jsason-parser/usr/local/lib/libjsonparser.a
 LDLIBS                      += ../../thirdparty/udb-jsason-parser/usr/local/lib/libjsonbuilder.a
-LDLIBS                      += ../../thirdparty/ujson/ujson/libujson.a
-LDLIBS                      += ../../thirdparty/ujson4c/libujson4c.a
 LDLIBS                      += ../../thirdparty/vincenthz-libjson/libvincenthz-libjson.a
 LDLIBS                      += ../../thirdparty/yajl/yajl-2.1.0/lib/libyajl_s.a
 LDLIBS                      += ../../thirdparty/jsonxx/libjsonxx.a
@@ -70,8 +68,6 @@ EXCLUDE_HEADERS             += ThorsSerializer_Canada.h  ThorsSerializer_citm_ca
 							   gason.h							\
 							   sajson.h							\
 							   ujson.hpp double-conversion.h	\
-        daw_json_link_test_citm.h daw_json_link_test_common.h daw_json_link_test_geojson_json.h daw_json_link_test_twitter_json.h daw_json_link_test_citm_json.h daw_json_link_test_geojson.h daw_json_link_test_twitter.h \
-
 
 
 FILE_WARNING_FLAGS          += -Wno-unknown-pragmas

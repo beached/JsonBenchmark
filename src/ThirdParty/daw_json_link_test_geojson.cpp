@@ -6,10 +6,7 @@
 #include <string_view>
 
 daw::geojson::FeatureCollection parse_geojson(std::string_view json_data) {
-  using policy_t =
-      daw::json::NoCommentSkippingPolicyChecked::template SetPolicyOptions<
-          daw::json::MustVerifyEndOfDataIsValid::yes>;
-  return daw::json::from_json<daw::geojson::FeatureCollection, policy_t>(
+  return daw::json::from_json<daw::geojson::FeatureCollection>(
       json_data);
 }
 
